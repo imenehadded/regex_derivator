@@ -47,8 +47,11 @@ public class Expression {
 
 		} else {
 			result = name_action;
-			if (this.with_not)
-				result = "^("+result+")";
+			if (this.with_not && is_main == false )
+				result = "(^"+result+")";
+			else if(this.with_not)
+				result = "^"+result;
+				
 		}
 
 		return result;

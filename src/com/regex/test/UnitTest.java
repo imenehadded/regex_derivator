@@ -9,68 +9,75 @@ import com.regex.derivator.Expression;
 import com.regex.derivator.String2Expression;
 
 public class UnitTest {
-	
- 
-	private Sample[] EXPRESSIONS_SAMPLES = {
-			new Sample("0","0"),
-			new Sample("^0","1"),
-			new Sample("1","0"),
-			new Sample("^1","1"),
-			new Sample("a","1"),
-			new Sample("^a","0"),
-			new Sample("b","0"), 
-			new Sample("^b","1"),
-			new Sample("a.b","b"),
-			new Sample("c.b","0"), 
-			new Sample("a+b","1"),
-			new Sample("c+b","0"), 
-			new Sample("^(a.b)","^b"),
-			new Sample("^(c.b)","1"), 
-			new Sample("^(a+b)","0"),
-			new Sample("^(c+b)","1"), 
-			new Sample("a*b","a*b"),
-			new Sample("c*b","0"), 
-			new Sample("(^r)*(r.(^a))","0"),
-			} ;
-	
+
 	private String ACTION = "a";
-	
-	private String derivator(String expression){
-		
-		String2Expression str2Expression = new String2Expression(expression);
-		Expression expressionObj  = str2Expression.getExpression();	
- 
-		Derivative derivative = new Derivative(expressionObj, ACTION);	
- 
-		Expression expressionNew  = derivative.getExpression();
- 		
+
+	private String derivator(String expression) {
+
+		Expression expressionObj = new String2Expression(expression).getExpression();
+
+		Derivative derivative = new Derivative(expressionObj, ACTION);
+
+		Expression expressionNew = derivative.getExpression();
+
 		String result = expressionNew.toString();
-	 
+
 		return result;
 	}
-	
+
 	@Test
-	public void main_test(){
-		
-		for(Sample sample : EXPRESSIONS_SAMPLES){
-			
-	 
-			String result = this.derivator(sample.expression);
-			 
-			String err_msg =  sample.expression+" must be "+sample.result+" got "+result+" instead";
-			System.out.println(err_msg);
-			
-			assertEquals(err_msg, sample.result, result);
-		}
-		
+	public void derive_constant() {
+
+		assertEquals("", this.derivator("0"), "0");
+		assertEquals("", this.derivator("^0"), "1");
+		assertEquals("", this.derivator("1"), "0");
+		assertEquals("", this.derivator("^1"), "1");
+		assertEquals("", this.derivator("a"), "1");
+		assertEquals("", this.derivator("^a"), "0");
+		assertEquals("", this.derivator("b"), "0");
+		assertEquals("", this.derivator("^b"), "1");
 	}
 
-	class Sample{
-		public String expression;
-		public String result;
-		public Sample(String expression,String result){
-			this.expression = expression;
-			this.result = result;	
-		}
+	@Test
+	public void derive_concat() {
+
+		assertEquals("", this.derivator("a.b"), "b");
+		assertEquals("", this.derivator("b.a"), "0");
+		assertEquals("", this.derivator("c.b"), "0");
+		assertEquals("", this.derivator("^(a.b)"), "^b");
+		assertEquals("", this.derivator("^(c.b)"), "1");
+
+		/*
+		 * assertEquals("", this.derivator("a.b.c"), "b"); assertEquals("",
+		 * this.derivator("a.(b.c)"), "b"); assertEquals("",
+		 * this.derivator("a.^(b.c)"), "b"); assertEquals("",
+		 * this.derivator("(a.b).c"), "b");
+		 */
 	}
+
+	@Test
+	public void derive_union() {
+
+		assertEquals("", this.derivator("a+b"), "1");
+		assertEquals("", this.derivator("c+b"), "0");
+		assertEquals("", this.derivator("^(a+b)"), "0");
+		assertEquals("", this.derivator("^(c+b)"), "1");
+
+	}
+
+	@Test
+	public void derive_star() {
+
+		assertEquals("", this.derivator("a*b"), "a*b");
+		assertEquals("", this.derivator("c*b"), "0");
+
+	}
+
+	@Test
+	public void derive_complexed() {
+
+		assertEquals("", this.derivator("(^r)*(r.(^a))"), "0");
+
+	}
+
 }
